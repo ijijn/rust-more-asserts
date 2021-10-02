@@ -370,8 +370,10 @@ mod tests {
     use std::panic::catch_unwind;
 
     #[derive(PartialOrd, PartialEq, Debug)]
-    enum DummyType {
-        Foo, Bar, Baz
+    enum Dummy {
+        Foo,
+        Bar,
+        Baz,
     }
 
     #[test]
@@ -379,16 +381,40 @@ mod tests {
         assert_lt!(3, 4);
         assert_lt!(4.0, 4.5);
         assert_lt!("a string", "b string");
-        assert_lt!(DummyType::Foo, DummyType::Bar,
-                   "Message with {}", "cool formatting");
+        assert_lt!(Dummy::Foo, Dummy::Bar, "Message with {}", "cool formatting");
 
-        let a = &DummyType::Foo;
-        let b = &DummyType::Baz;
+        let a = &Dummy::Foo;
+        let b = &Dummy::Baz;
         assert_lt!(a, b);
 
         assert!(catch_unwind(|| assert_lt!(5, 3)).is_err());
         assert!(catch_unwind(|| assert_lt!(5, 5)).is_err());
-        assert!(catch_unwind(|| assert_lt!(DummyType::Bar, DummyType::Foo)).is_err());
+        assert!(catch_unwind(|| assert_lt!(Dummy::Bar, Dummy::Foo)).is_err());
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    fn test_debug_assert_lt() {
+        debug_assert_lt!(3, 4);
+        debug_assert_lt!(4.0, 4.5);
+        debug_assert_lt!("a string", "b string");
+        debug_assert_lt!(Dummy::Foo, Dummy::Bar, "Message with {}", "cool formatting");
+
+        let a = &Dummy::Foo;
+        let b = &Dummy::Baz;
+        debug_assert_lt!(a, b);
+
+        debug_assert!(catch_unwind(|| debug_assert_lt!(5, 3)).is_err());
+        debug_assert!(catch_unwind(|| debug_assert_lt!(5, 5)).is_err());
+        debug_assert!(catch_unwind(|| debug_assert_lt!(Dummy::Bar, Dummy::Foo)).is_err());
+    }
+
+    #[cfg(not(debug_assertions))]
+    #[test]
+    fn debug_assert_lt_shouldnt_fire_in_release() {
+        debug_assert_lt!(5, 3);
+        debug_assert_lt!(5, 5);
+        debug_assert_lt!(Dummy::Bar, Dummy::Foo);
     }
 
     #[test]
@@ -396,16 +422,40 @@ mod tests {
         assert_gt!(4, 3);
         assert_gt!(4.5, 4.0);
         assert_gt!("b string", "a string");
-        assert_gt!(DummyType::Bar, DummyType::Foo,
-                   "Message with {}", "cool formatting");
+        assert_gt!(Dummy::Bar, Dummy::Foo, "Message with {}", "cool formatting");
 
-        let a = &DummyType::Foo;
-        let b = &DummyType::Baz;
+        let a = &Dummy::Foo;
+        let b = &Dummy::Baz;
         assert_gt!(b, a);
 
         assert!(catch_unwind(|| assert_gt!(3, 5)).is_err());
         assert!(catch_unwind(|| assert_gt!(5, 5)).is_err());
-        assert!(catch_unwind(|| assert_gt!(DummyType::Foo, DummyType::Bar)).is_err());
+        assert!(catch_unwind(|| assert_gt!(Dummy::Foo, Dummy::Bar)).is_err());
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    fn test_debug_assert_gt() {
+        debug_assert_gt!(4, 3);
+        debug_assert_gt!(4.5, 4.0);
+        debug_assert_gt!("b string", "a string");
+        debug_assert_gt!(Dummy::Bar, Dummy::Foo, "Message with {}", "cool formatting");
+
+        let a = &Dummy::Foo;
+        let b = &Dummy::Baz;
+        debug_assert_gt!(b, a);
+
+        debug_assert!(catch_unwind(|| debug_assert_gt!(3, 5)).is_err());
+        debug_assert!(catch_unwind(|| debug_assert_gt!(5, 5)).is_err());
+        debug_assert!(catch_unwind(|| debug_assert_gt!(Dummy::Foo, Dummy::Bar)).is_err());
+    }
+
+    #[cfg(not(debug_assertions))]
+    #[test]
+    fn debug_assert_gt_shouldnt_fire_in_release() {
+        debug_assert_gt!(5, 5);
+        debug_assert_gt!(Dummy::Foo, Dummy::Bar);
+        debug_assert_gt!(3, 5);
     }
 
     #[test]
@@ -415,17 +465,43 @@ mod tests {
         assert_le!(4.0, 4.5);
         assert_le!("a string", "a string");
         assert_le!("a string", "b string");
-        assert_le!(DummyType::Foo, DummyType::Bar, "Message");
-        assert_le!(DummyType::Foo, DummyType::Foo,
-                   "Message with {}", "cool formatting");
+        assert_le!(Dummy::Foo, Dummy::Bar, "Message");
+        assert_le!(Dummy::Foo, Dummy::Foo, "Message with {}", "cool formatting");
 
-        let a = &DummyType::Foo;
-        let b = &DummyType::Baz;
+        let a = &Dummy::Foo;
+        let b = &Dummy::Baz;
         assert_le!(a, a);
         assert_le!(a, b);
 
         assert!(catch_unwind(|| assert_le!(5, 3)).is_err());
-        assert!(catch_unwind(|| assert_le!(DummyType::Bar, DummyType::Foo)).is_err());
+        assert!(catch_unwind(|| assert_le!(Dummy::Bar, Dummy::Foo)).is_err());
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    fn test_debug_assert_le() {
+        debug_assert_le!(3, 4);
+        debug_assert_le!(4, 4);
+        debug_assert_le!(4.0, 4.5);
+        debug_assert_le!("a string", "a string");
+        debug_assert_le!("a string", "b string");
+        debug_assert_le!(Dummy::Foo, Dummy::Bar, "Message");
+        debug_assert_le!(Dummy::Foo, Dummy::Foo, "Message with {}", "cool formatting");
+
+        let a = &Dummy::Foo;
+        let b = &Dummy::Baz;
+        debug_assert_le!(a, a);
+        debug_assert_le!(a, b);
+
+        debug_assert!(catch_unwind(|| debug_assert_le!(5, 3)).is_err());
+        debug_assert!(catch_unwind(|| debug_assert_le!(Dummy::Bar, Dummy::Foo)).is_err());
+    }
+
+    #[cfg(not(debug_assertions))]
+    #[test]
+    fn debug_assert_le_shouldnt_fire_in_release() {
+        debug_assert_le!(5, 3);
+        debug_assert_le!(Dummy::Bar, Dummy::Foo);
     }
 
     #[test]
@@ -436,18 +512,43 @@ mod tests {
         assert_ge!(5.0, 5.0);
         assert_ge!("a string", "a string");
         assert_ge!("b string", "a string");
-        assert_ge!(DummyType::Bar, DummyType::Bar, "Example");
-        assert_ge!(DummyType::Bar, DummyType::Foo,
-                   "Message with {}", "cool formatting");
+        assert_ge!(Dummy::Bar, Dummy::Bar, "Example");
+        assert_ge!(Dummy::Bar, Dummy::Foo, "Message with {}", "cool formatting");
 
-        let a = &DummyType::Foo;
-        let b = &DummyType::Baz;
+        let a = &Dummy::Foo;
+        let b = &Dummy::Baz;
         assert_ge!(a, a);
         assert_ge!(b, a);
 
         assert!(catch_unwind(|| assert_ge!(3, 5)).is_err());
-        assert!(catch_unwind(|| assert_ge!(DummyType::Foo, DummyType::Bar)).is_err());
+        assert!(catch_unwind(|| assert_ge!(Dummy::Foo, Dummy::Bar)).is_err());
     }
 
-    // @@TODO: how to test the debug macros?
+    #[cfg(debug_assertions)]
+    #[test]
+    fn test_debug_assert_ge() {
+        debug_assert_ge!(4, 3);
+        debug_assert_ge!(4, 4);
+        debug_assert_ge!(4.5, 4.0);
+        debug_assert_ge!(5.0, 5.0);
+        debug_assert_ge!("a string", "a string");
+        debug_assert_ge!("b string", "a string");
+        debug_assert_ge!(Dummy::Bar, Dummy::Bar, "Example");
+        debug_assert_ge!(Dummy::Bar, Dummy::Foo, "Message with {}", "cool formatting");
+
+        let a = &Dummy::Foo;
+        let b = &Dummy::Baz;
+        debug_assert_ge!(a, a);
+        debug_assert_ge!(b, a);
+
+        debug_assert!(catch_unwind(|| debug_assert_ge!(3, 5)).is_err());
+        debug_assert!(catch_unwind(|| debug_assert_ge!(Dummy::Foo, Dummy::Bar)).is_err());
+    }
+
+    #[cfg(not(debug_assertions))]
+    #[test]
+    fn debug_assert_ge_shouldnt_fire_in_release() {
+        debug_assert_ge!(3, 5);
+        debug_assert_ge!(Dummy::Foo, Dummy::Bar);
+    }
 }
